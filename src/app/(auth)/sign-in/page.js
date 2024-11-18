@@ -39,7 +39,7 @@ export default function SignIn() {
         ]
       }
       if(result?.url){
-        router.push('/users')
+        router.push('/dashboard')
       }
     } catch (error) {
       console.error('Failed to register:', error);
