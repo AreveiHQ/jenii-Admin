@@ -14,7 +14,6 @@ export const authOptions = {
             },
             authorize: async (credentials) => {
               try {
-                console.log(credentials)
                       await connectToDB();
                       const user = await User.findOne({username:credentials.username, email: credentials.email });
                       if(!user ){
@@ -44,12 +43,16 @@ export const authOptions = {
             if (user) {
               token.id = user._id;
               token.role = user.role;
+              token.username = user.username;
+              token.image = user.image;
             }
             return token;
           },
           async session({ session, token }) {
             session.user.id = token._id;
             session.user.role = token.role;
+            session.user.username = token.username;
+            session.user.image = token.image;
             return session;
           }
         },

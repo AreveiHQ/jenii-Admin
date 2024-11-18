@@ -2,9 +2,10 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 export async function middleware(req){
-        const token = await getToken({req:req});
+        const secret = process.env.NEXTAUTH_SECRET;
+  const token = await getToken({ req, secret });
         const url = req.nextUrl.pathname;
-        const isPublicPath = url.startsWith('/sign-in')||url.startsWith('/sign-up')||url.startsWith('/verify');
+        const isPublicPath = url.startsWith('/sign-in')||url.startsWith('/sign-up')||url.startsWith('/verify')|| url==='/';
         if(isPublicPath && token){
                 return NextResponse.redirect(new URL('/dashboard',req.url))
         }
