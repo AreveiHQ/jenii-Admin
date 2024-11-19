@@ -103,48 +103,4 @@ export async function POST(request) {
   }
 }
 
-// Update a product
-export async function PUT(request) {
-  await connectToDB();
-  try {
-    const { id, updates } = await request.json();
 
-    if (!id || !updates) {
-      return NextResponse.json({ message: 'Product ID and updates are required' }, { status: 400 });
-    }
-
-    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true });
-
-    if (!updatedProduct) {
-      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: 'Product updated successfully', product: updatedProduct }, { status: 200 });
-  } catch (error) {
-    console.error('Error updating product:', error);
-    return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
-  }
-}
-
-// Delete a product
-export async function DELETE(request) {
-  await connectToDB();
-  try {
-    const { id } = await request.json();
-
-    if (!id) {
-      return NextResponse.json({ message: 'Product ID is required' }, { status: 400 });
-    }
-
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
-      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 });
-  } catch (error) {
-    console.error('Error deleting product:', error);
-    return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
-  }
-}
