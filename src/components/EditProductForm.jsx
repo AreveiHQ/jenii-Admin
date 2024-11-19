@@ -12,7 +12,8 @@ const EditProductForm = ({ productId, onClose }) => {
   // Fetch product details
   useEffect(() => {
     const fetchProductDetails = async () => {
-      try {
+        try {
+          console.log(productId)
         const response = await fetch(`/api/products/${productId}`);
         if (!response.ok) throw new Error("Failed to fetch product details");
         const product = await response.json();

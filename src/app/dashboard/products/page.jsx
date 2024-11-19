@@ -121,8 +121,8 @@ const ProductTable = () => {
               color: "blue",
             }}
             onClick={() => {
-              console.log("Editing Product ID:", params.data._id);
-              setEditingProductId(params.data._id)}} // Set the product ID to edit
+              // console.log("Editing Product ID:", params.data._id);
+              setEditingProductId(params.data._id)}}
           >
             ✏️ Edit
           </button>
