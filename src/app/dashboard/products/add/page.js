@@ -20,6 +20,7 @@ import "./product.css";
 import calculatedDiscount from "@/utils/productUtils";
 import { FaArrowDown } from "react-icons/fa";
 import { Badge } from "@mui/material";
+import Image from "next/image";
 
 // Validation schema using Yup
 const SUPPORTED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png'];
@@ -165,7 +166,9 @@ export default function AddNewProduct() {
 
               
               <div className="upload-item ">
-              <img
+              <Image
+              width={30}
+              height={30}
                 src="https://www.codingnepalweb.com/demos/resize-and-compress-image-javascript/upload-icon.svg"
                 className="mx-auto"
                 alt="Upload"
@@ -178,7 +181,8 @@ export default function AddNewProduct() {
             <div className="content space-y-3 w-full">
             <div className="overflow-x-scroll w-min horizon-scroll  flex gap-2 pt-3 ">
             <div className=" bg-[#edeaf1] rounded-md  p-7" onClick={()=> fileInput.current.click()}>
-                    <img
+                    <Image  width={20}
+              height={20}
                 src="https://www.codingnepalweb.com/demos/resize-and-compress-image-javascript/upload-icon.svg"
                 alt="Upload"
                 id="postimage"
@@ -191,16 +195,16 @@ export default function AddNewProduct() {
                   
                   <div className="flex gap-3 flex-row-reverse  ">
                     {preview?.map((preview, index) => (
-                     <Badge badgeContent="x" color="primary" >
-                        <div className="w-32 h-32" onClick={()=>FilterImages(index)}>
-                      <img
+                        <div className="w-32 h-32 px-2" onClick={()=>FilterImages(index)}>
+                      <Image
+                       width={100}
+                       height={100}
                         key={index}
                         src={preview}
                         alt={`Preview ${index + 1}`}
                         className="w-32 h-32 object-cover rounded"
                       />
                       </div>
-                      </Badge>
                     ))}
                     
                   </div>
