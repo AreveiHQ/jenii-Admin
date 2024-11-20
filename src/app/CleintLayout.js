@@ -1,7 +1,7 @@
 "use client"; 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { DNA } from 'react-loader-spinner';
+import Image from 'next/image';
 
 export default function ClientLayout({ children }) {
     const [loading, setLoading] = useState(true);
@@ -21,7 +21,9 @@ export default function ClientLayout({ children }) {
     return (
         <>
             {loading ? <div className="flex items-center justify-center h-screen bg-background fixed inset-0 z-50">
-                <img
+                <Image
+                height={30}
+                width={30}
                     src='/load.png' 
                     alt="Loading..."
                     className="w-32 h-32 animate-spin" 

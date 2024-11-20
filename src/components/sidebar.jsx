@@ -1,6 +1,7 @@
 "use client"
 import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useContext, createContext, useState, useEffect } from "react"
 
@@ -16,7 +17,9 @@ export default function Sidebar({ children }) {
     <aside className="h-screen sticky top-0">
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
-          <img
+          <Image
+           width={80}
+           height={30}
             src="/jeniiLogo.png"
             className={`overflow-hidden transition-all ${
               expanded ? "w-32" : "w-0"
@@ -36,7 +39,9 @@ export default function Sidebar({ children }) {
         </SidebarContext.Provider>
 
         {data && <div className="border-t flex p-3">
-          <img
+          <Image
+           width={30}
+           height={30}
             src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
             alt=""
             className="w-10 h-10 rounded-md"

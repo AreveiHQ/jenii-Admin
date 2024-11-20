@@ -5,6 +5,7 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import EditProductForm from "@/components/EditProductForm"; // Import the EditProductForm component
+import Image from "next/image";
 
 const ProductTable = () => {
   const [rowData, setRowData] = useState([]);
@@ -74,7 +75,7 @@ const ProductTable = () => {
       filter: true,
       cellRenderer: (params) => (
         <div style={{ display: "flex", alignItems: "center" }}>
-          <img
+          <Image width={40} height={40}
             src={params.data.images[0]} // Assuming `images` is an array
             alt={params.data.name}
             style={{ width: "40px", height: "40px", marginRight: "10px" }}
