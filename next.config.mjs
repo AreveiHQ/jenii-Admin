@@ -12,13 +12,11 @@ const nextConfig = {eslint: {
           protocol: "https",
           hostname: "ui-avatars.com",
         },
+        {
+          protocol: "https",
+          hostname: "cdn.bio.link",
+        },
       ],
-    } , webpack(config) {
-        config.module.rules.push({
-          test: /\.svg$/,
-          use: ['@svgr/webpack'],
-        });
-        return config;
-      }};
+    } };
 
 export default nextConfig;

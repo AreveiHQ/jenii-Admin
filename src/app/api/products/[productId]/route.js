@@ -22,7 +22,7 @@ export async function GET(req, { params }) {
 
 // PUT request to update a product by ID
 export async function PUT(req, { params }) {
-    const { productId } = params;
+    const { productId } =await params;
     const updatedData = await req.json();
 
     try {
