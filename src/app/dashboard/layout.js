@@ -14,7 +14,7 @@ const Layout = ({ children }) => {
         <SidebarItem icon={<Plus size={20}/>} text="Add Products" path="/dashboard/products/add"/>
         <SidebarItem icon={<Rings size={20}/>} text="Add Categories" path="/dashboard/categories/upload"/>
         <SidebarItem icon={<Boxes size={20}/>} text="Inventory" />
-        <SidebarItem icon={<Package size={20}/>} text="Orders" />
+        <SidebarItem icon={<Package size={20}/>} text="Orders" path="/dashboard/orders" />
 
       </Sidebar>
 
