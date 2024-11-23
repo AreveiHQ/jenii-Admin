@@ -1,6 +1,6 @@
 import Sidebar, { SidebarItem, SignOutButton } from "@/components/sidebar";
 import { Rings, Shop } from "iconoir-react";
-import { BarChart3, Boxes, LayoutDashboard, Package, Plus, UserCircle } from "lucide-react";
+import { BarChart3, Boxes, FileSliders, LayoutDashboard, Package, Plus, UserCircle, UserCogIcon } from "lucide-react";
 import React from "react";
 const Layout = ({ children }) => {
   return (
@@ -13,6 +13,8 @@ const Layout = ({ children }) => {
         <SidebarItem icon={<Shop size={20}/>} text="Products" path="/dashboard/products"/>
         <SidebarItem icon={<Plus size={20}/>} text="Add Products" path="/dashboard/products/add"/>
         <SidebarItem icon={<Rings size={20}/>} text="Add Categories" path="/dashboard/categories/upload"/>
+        <SidebarItem icon={<FileSliders size={20}/>} text="Add Slides" path="/dashboard/slides"/>
+        <SidebarItem icon={<UserCogIcon size={20}/>} text="Admin User" path="/dashboard/admins"/>
         <SidebarItem icon={<Boxes size={20}/>} text="Inventory" />
         <SidebarItem icon={<Package size={20}/>} text="Orders" />
 
