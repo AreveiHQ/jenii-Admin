@@ -16,7 +16,7 @@ const Layout = ({ children }) => {
         <SidebarItem icon={<FileSliders size={20}/>} text="Add Slides" path="/dashboard/slides"/>
         <SidebarItem icon={<UserCogIcon size={20}/>} text="Admin User" path="/dashboard/admins"/>
         <SidebarItem icon={<Boxes size={20}/>} text="Inventory" />
-        <SidebarItem icon={<Package size={20}/>} text="Orders" />
+        <SidebarItem icon={<Package size={20}/>} text="Orders" path="/dashboard/orders" />
 
       </Sidebar>
 
