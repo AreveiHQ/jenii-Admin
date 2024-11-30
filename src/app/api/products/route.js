@@ -87,7 +87,7 @@ export async function POST(request) {
         price,
         discountPrice,
         discountPercent,
-        category: { name: category, id: isExist._id },
+        category: { name: subCategory, id: isExist._id },
         collection,
         metal,
         stock,
