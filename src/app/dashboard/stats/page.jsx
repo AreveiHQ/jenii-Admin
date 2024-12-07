@@ -34,19 +34,8 @@ export default function Stats() {
     axios
       .get("/api/stats") // Adjust the endpoint path if needed
       .then((response) => {
+        console.log(response.data);
         setData(response.data);
-
-        // Initialize the user registration data with 0 for each month
-        const newUserRegistrationData = Array(12).fill(0);
-
-        // Map the userRegistrationStats to the correct month index
-        response.data.userRegistrationStats.forEach((stat) => {
-          const monthIndex = stat._id - 1; // No need for -1 as _id is already the month number (1-12)
-          newUserRegistrationData[monthIndex] = stat.userCount; // Update the specific month with user count
-        });
-
-        // Update the state with the correctly populated data
-        userRegistrationData.datasets[0].data = newUserRegistrationData;
       })
       .catch((err) => console.error("Error fetching data:", err));
   }, []);
@@ -54,17 +43,35 @@ export default function Stats() {
   if (!data) return <div>Loading...</div>;
 
   const salesData = {
-    labels: data.salesData.map((d) => `Month ${d._id}`),
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
     datasets: [
       {
         label: "Revenue (in ₹)",
-        data: data.salesData.map((d) => d.totalRevenue),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        fill: true,
+        data: data.salesData.map((d) => d.totalRevenue), // Map totalRevenue to data
+        borderColor: "rgba(75, 192, 192, 1)", // Line color
+        pointBackgroundColor: "rgba(75, 192, 192, 1)", // Dot color
+        pointRadius: 5, // Size of the dot
+        borderWidth: 2, // Line width
+        tension: 0.4, // Curved line
+        fill: false, // No fill under the line
       },
     ],
   };
+
+ 
 
   const bestSellingProductsData = {
     labels: data.productSalesData.map((p) => p.name),
