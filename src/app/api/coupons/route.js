@@ -5,7 +5,7 @@ export async function POST(req) {
   await connectToDB();
   const { code, discountType, discountValue, validUntil, minimumOrderValue, usageLimit } =
     await req.json();
-
+    console.log( code, discountType, discountValue, validUntil, minimumOrderValue, usageLimit)
   try {
     const newCoupon = new Coupon({
       code,

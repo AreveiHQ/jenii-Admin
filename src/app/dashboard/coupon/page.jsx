@@ -9,9 +9,9 @@ import { useState } from 'react';
 const CouponSchema = Yup.object().shape({
   code: Yup.string().required('Coupon code is required'),
   discountType: Yup.string().required('Select a discount type'),
-  value: Yup.number().positive().required('Enter a discount value'),
-  discountValue: Yup.number().positive().optional(),
-  minOrderValue: Yup.number().positive().optional(),
+  discountValue: Yup.number().positive().required('Enter a discount value'),
+  minimumOrderValue: Yup.number().positive().optional(),
+  usageLimit:Yup.number().positive().optional(),
   validUntil: Yup.string().required('Select a validity period'),
 });
 
@@ -61,19 +61,19 @@ export default function CouponsPage() {
           <select {...register('discountType')} className="w-full p-2 border rounded">
             <option value="">Select</option>
             <option value="percentage">Percentage</option>
-            <option value="fixed">Flat</option>
+            <option value="fixed">In Ruppes</option>
           </select>
           <p className="text-red-500 text-sm">{errors.discountType?.message}</p>
         </div>
         <div>
-          <label className="block font-medium">Value</label>
+          <label className="block font-medium">Discount Value</label>
           <input
-            {...register('value')}
+            {...register('discountValue')}
             type="number"
             className="w-full p-2 border rounded"
             placeholder="E.g., 40 for 40% or 500 for Rs.500"
           />
-          <p className="text-red-500 text-sm">{errors.value?.message}</p>
+          <p className="text-red-500 text-sm">{errors.discountValue?.message}</p>
         </div>
         <div>
         <div>
@@ -86,18 +86,11 @@ export default function CouponsPage() {
           </select>
           <p className="text-red-500 text-sm">{errors.validUntil?.message}</p>
         </div>
-          <label className="block font-medium">Maximum Discount (optional)</label>
-          <input
-            {...register('maxDiscount')}
-            type="number"
-            className="w-full p-2 border rounded"
-            placeholder="E.g., 200 for Upto Rs.200"
-          />
         </div>
         <div>
           <label className="block font-medium">Minimum Order Value (optional)</label>
           <input
-            {...register('minOrderValue')}
+            {...register('minimumOrderValue')}
             type="number"
             className="w-full p-2 border rounded"
             placeholder="E.g., 1000"
@@ -115,7 +108,7 @@ export default function CouponsPage() {
         {coupons.map((coupon) => (
           <li key={coupon.id} className="p-4 bg-white shadow rounded">
             <p><strong>Code:</strong> {coupon.code}</p>
-            <p><strong>Discount:</strong> {coupon.discountType === 'percentage' ? `${coupon.value}%` : `Rs.${coupon.value}`}</p>
+            <p><strong>Discount:</strong> {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `Rs.${coupon.discountValue}`}</p>
           </li>
         ))}
       </ul>
