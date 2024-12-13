@@ -12,14 +12,20 @@ export async function POST(req) {
         console.log(formData)
         const links = formData.get("links");
         const section = formData.get("section");
-        const slideImage = formData.get("slideImage");
-        if (!slideImage || !links || !section) {
+        const desktopbanner = formData.get("desktopbanner");
+        const mobilebanner = formData.get("mobilebanner");
+        if ( desktopbanner?.type.startsWith("/image") && mobilebanner?.type.startsWith("/image")) {
+            return NextResponse.json({ message: "Invalid image type" }, { status: 400 });
+        }
+        if ( !links && !section) {
             return NextResponse.json({ message: "All fields are required" }, { status: 400 });
         }
 
-        const imageBuffer = Buffer.from(await slideImage.arrayBuffer()); // Convert file to Buffer
-        const uploadedImage = await uploadToCloudinary(imageBuffer, '/slides'); // Upload to Cloudinary
-        const home = await Home.create({ images: uploadedImage.secure_url, links, section });
+        const desktopBuffer = Buffer.from(await desktopbanner.arrayBuffer()); // Convert file to Buffer
+        const uploadedDesktopImage = await uploadToCloudinary(desktopBuffer, '/slides'); // Upload to Cloudinary
+        const mobileBuffer = Buffer.from(await mobilebanner.arrayBuffer()); // Convert file to Buffer
+        const uploadedMoblieImage = await uploadToCloudinary(mobileBuffer, '/slides'); // Upload to Cloudinary
+        const home = await Home.create({ desktopBannerImage: uploadedDesktopImage.secure_url,mobileBannerImage: uploadedMoblieImage.secure_url, links, section });
 
         if (!home) {
             return NextResponse.json({ message: "Slide not added" }, { status: 500 });

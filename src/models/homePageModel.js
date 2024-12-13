@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
 const homepageSchema = new mongoose.Schema({
-  images: {
+  desktopBannerImage: {
+    type: String,
+    required: true,
+  },
+  mobileBannerImage: {
     type: String,
     required: true,
   },
@@ -11,7 +15,7 @@ const homepageSchema = new mongoose.Schema({
   },
   section:{
     type: String,
-    enum:["Hero Slider","About Slider","Medal Worthy"],
+    enum:["hero-slider","about-slider"],
     required: true
   },
   createdAt: {
