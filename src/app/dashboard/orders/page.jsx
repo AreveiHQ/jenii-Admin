@@ -1,35 +1,45 @@
 'use client';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef, useCallback } from "react";
 import axios from "axios";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { CsvExportModule, ModuleRegistry,} from "ag-grid-community";
+import { ExcelExportModule } from "ag-grid-enterprise";
 
-export default function OrdersDashboard() {
-  const [orders, setOrders] = useState([]);
+
+const OrdersDashboard = () => {
   const [rowData, setRowData] = useState([]);
+  const [count, setCount] = useState(0);
+  const gridRef = useRef();
+  ModuleRegistry.registerModules([CsvExportModule,ExcelExportModule,]);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const res = await axios.get("/api/orders");
-        const formattedData = res.data.orders.map((order) =>
-          order.orders.flatMap((subOrder) =>
-            subOrder.items.map((item) => ({
-              customerName: order.userId?.name || "N/A",
-              itemName: item.productId?.name || "N/A",
-              quantity: item.quantity,
-              paymentStatus: subOrder.paymentStatus,
-              orderId: subOrder.orderId,
-              orderStatus: subOrder.orderStatus,
-              total: subOrder.total || 0,
-              date: subOrder.date || "N/A",
-              delivery: subOrder.delivery || "N/A",
-              items: subOrder.items.length,
-            }))
+        const formattedData = res.data.orders
+          .map((order) =>
+            order.orders.flatMap((subOrder) =>
+              subOrder.items.map((item) => ({
+                customerName: order.userId?.name || "N/A",
+                itemName: item.productId?.name || "N/A",
+                quantity: item.quantity,
+                paymentStatus: subOrder.paymentStatus,
+                orderId: subOrder.orderId.split("_")[1],
+                address: subOrder.address,
+                orderStatus: subOrder.orderStatus,
+                total: `Rs.${subOrder.amount}`,
+                date: subOrder.date || "N/A",
+                delivery: subOrder.delivery || "N/A",
+                items: subOrder.items.length,
+              }))
+            )
           )
-        ).flat();
+          .flat();
+
         setRowData(formattedData);
+        setCount(formattedData.length);
       } catch (err) {
         console.error("Error fetching orders:", err);
       }
@@ -38,103 +48,114 @@ export default function OrdersDashboard() {
     fetchOrders();
   }, []);
 
-  const handleStatusUpdate = (orderId, newStatus) => {
-    console.log(`Updating order ${orderId} to status: ${newStatus}`);
-    setRowData((prevData) =>
-      prevData.map((row) =>
-        row.orderId === orderId ? { ...row, orderStatus: newStatus } : row
-      )
-    );
+  const handleStatusChange = (params, newStatus) => {
+    const updatedRowData = rowData.map((row) => {
+      if (row.orderId === params.data.orderId) {
+        return { ...row, orderStatus: newStatus };
+      }
+      return row;
+    });
+  
+    setRowData(updatedRowData);
+  
+  
+    axios.put(`/api/orders/${params.data.orderId}`, { orderStatus: newStatus })
+      .then(() => console.log("Status updated"))
+      .catch((err) => console.error("Error updating status:", err));
   };
+
+  const onBtExportCsv = useCallback(() => {
+    gridRef.current.api.exportDataAsCsv({
+     fileName: 'jeniiorders.csv'
+    });
+  }, []);
+  
+  
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Shipped":
+        return { background: "rgb(191, 219, 254)", color: "rgb(37, 99, 235)" };
+      case "Delivered":
+        return { background: "rgb(187, 247, 208)", color: "rgb(34, 197, 94)" };
+      case "Canceled":
+        return { background: "rgb(254, 202, 202)", color: "rgb(239, 68, 68)" };
+      case "Processing":
+        return { background: "rgb(254, 243, 199)", color: "rgb(234, 179, 8)" };
+      default:
+        return { background: "rgb(229, 231, 235)", color: "rgb(55, 65, 81)" };
+    }
+  };
+  
 
   const columnDefs = [
     { headerName: "Order ID", field: "orderId", flex: 0.5 },
-    { headerName: "Date", field: "date", flex: 1 },
+    { headerName: "Product", field: "itemName", flex: 1 },
     { headerName: "Customer", field: "customerName", flex: 1 },
-    { headerName: "Payment", field: "paymentStatus", flex: 1, cellStyle: params => ({color: params.value === 'Success' ? 'green' : 'orange'}) },
-    { headerName: "Total", field: "total", flex: 1 },
-    { headerName: "Delivery", field: "delivery", flex: 1 },
-    { headerName: "Items", field: "items", flex: 0.5 },
-    { headerName: "Fulfillment", field: "orderStatus", flex: 1, cellStyle: params => ({ color: params.value === 'Fulfilled' ? 'green' : 'red' }) },
+    { headerName: "Date", field: "date", flex: 1 },
     {
-      headerName: "Actions",
-      field: "actions",
-      flex: 1.5,
-      cellRendererFramework: (params) => (
-        <div className="flex space-x-2">
-          <button
-            onClick={() => handleStatusUpdate(params.data.orderId, "Shipped")}
-            className="px-2 py-1 text-white bg-blue-500 rounded"
+      headerName: "Payment",
+      field: "paymentStatus",
+      flex: 1,
+      cellStyle: (params) => ({
+        color: params.value === "confirmed" ? "green" : "orange",
+        backgroundColor: "rgb(187, 247, 208)",
+      }),
+    },
+    { headerName: "Total", field: "total", flex: 1 },
+    { headerName: "Address", field: "address", flex: 1.5 },
+    { headerName: "Items", field: "items", flex: 0.5 },
+    {
+      headerName: "Status",
+      field: "orderStatus",
+      flex: 1,
+      cellRenderer: (params) => {
+        const statuses = ["Processing", "Shipped", "Delivered", "Canceled"];
+        return (
+          <select
+            value={params.value}
+            onChange={(e) => handleStatusChange(params, e.target.value)}
+            style={{
+              backgroundColor: getStatusColor(params.value).background,
+              color: getStatusColor(params.value).color,
+              padding:"4px",
+              font:"bold"
+            }}
           >
-            Shipped
-          </button>
-          <button
-            onClick={() => handleStatusUpdate(params.data.orderId, "Delivered")}
-            className="px-2 py-1 text-white bg-green-500 rounded"
-          >
-            Delivered
-          </button>
-          <button
-            onClick={() => handleStatusUpdate(params.data.orderId, "Canceled")}
-            className="px-2 py-1 text-white bg-red-500 rounded"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => handleStatusUpdate(params.data.orderId, "Pending")}
-            className="px-2 py-1 text-white bg-yellow-500 rounded"
-          >
-            Pending
-          </button>
-        </div>
-      ),
+            {statuses.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        );
+      },
     },
   ];
 
   return (
-    <div className="p-4 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Orders Dashboard</h1>
-
-      {/* Header Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        {[
-          { title: "Total Orders", value: "21", trend: "+25.2%" },
-          { title: "Order Items Over Time", value: "15", trend: "+18.2%" },
-          { title: "Returns Orders", value: "0", trend: "-1.2%" },
-          { title: "Fulfilled Orders Over Time", value: "12", trend: "+12.2%" },
-        ].map((card, index) => (
-          <div
-            key={index}
-            className="p-4 bg-white shadow-md rounded-lg flex flex-col"
-          >
-            <h2 className="text-gray-500 text-sm">{card.title}</h2>
-            <p className="text-2xl font-bold">{card.value}</p>
-            <span
-              className={`text-sm ${
-                card.trend.startsWith("+") ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              {card.trend}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabs */}
-      <div className="mb-4 flex space-x-4">
-        {["All", "Unfulfilled", "Unpaid", "Open", "Closed"].map((tab) => (
-          <button
-            key={tab}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
-          >
-            {tab}
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">
+          All Products{" "}
+          <span className="text-sm p-3 top-3 rounded-xl bg-red-400 text-red-800">
+            {count}
+          </span>
+        </h1>
+        <div className="flex gap-2">
+          <button className="bg-red-500 text-white py-2 px-4 rounded-md">Filter</button>
+          <button className="bg-red-500 text-white py-2 px-4 rounded-md"
+          onClick={onBtExportCsv}>
+            Export to CSV
           </button>
-        ))}
+        </div>
       </div>
-
-      {/* Data Table */}
-      <div className="ag-theme-alpine bg-white shadow-md rounded-lg p-4" style={{ height: 600, width: "100%" }}>
+      <div
+        className="ag-theme-alpine bg-white shadow-md rounded-lg p-4"
+        style={{ height: 600, width: "100%" }}
+      >
         <AgGridReact
+        ref={gridRef}
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={{
@@ -148,4 +169,6 @@ export default function OrdersDashboard() {
       </div>
     </div>
   );
-}
+};
+
+export default OrdersDashboard;
