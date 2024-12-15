@@ -112,9 +112,11 @@ export default function AddNewProduct() {
     setImageFile(filtered);
     setPreview(filteredpreview);
   }
+  const [loading,setLoading] = useState(false);
 
   const onSubmit = async (formData) => {
     try {
+      setLoading(true)
       console.log(formData)
       const form = new FormData();
       form.append("sku", formData.sku);
@@ -139,7 +141,9 @@ export default function AddNewProduct() {
       document.querySelector(".postform").classList.remove("jadu"); 
       toast.success("Product added successfully!");
       reset(); // Reset form after successful submission
+      setLoading(false)
     } catch (error) {
+      setLoading(false)
       toast.error(error.response?.data?.message || "Failed to add product");
     }
   };
@@ -381,9 +385,15 @@ export default function AddNewProduct() {
 
         </AccordionDetails>
       </Accordion>
+      {loading? <button type="button" className="submit-btn  duration-[500ms,800ms]" disabled>
+              <div className="flex gap-1 items-center justify-center "> 
+            <div className="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4"></div>
+            Submitting...
+        </div>
+</button>: 
               <button type="submit" className="submit-btn">
                 Submit
-              </button>
+              </button>}
             </div>
           </form>
         </div>
