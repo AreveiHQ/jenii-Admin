@@ -40,7 +40,7 @@ export default function Sidebar({ children }) {
 
         {data && <div className="border-t flex p-3">
           <div
-            className="w-10 h-10 rounded-md bg-[rgba(196,30,86,1)] text-[rgba(196,30,86,0.2)]  font-extrabold flex justify-center items-center text-xl"
+            className="w-10 h-10 rounded-md bg-[rgba(196,30,86,1)] text-white  font-extrabold flex justify-center items-center text-xl"
 
           >{data.user?.username.charAt(0)}</div>
           <div
