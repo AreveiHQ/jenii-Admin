@@ -47,7 +47,7 @@ export async function GET(request) {
             { $unwind: '$orders' },
             {
                 $group: {
-                    _id: '$orders.address',
+                    _id: '$orders.customer.address',
                     count: { $sum: 1 },
                 },
             },

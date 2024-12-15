@@ -20,7 +20,7 @@ export default function Sidebar({ children }) {
           <Image
            width={80}
            height={30}
-            src="/jeniiLogo.png"
+            src="/jenii.png"
             className={`overflow-hidden transition-all ${
               expanded ? "w-32" : "w-0"
             }`}
@@ -40,7 +40,7 @@ export default function Sidebar({ children }) {
 
         {data && <div className="border-t flex p-3">
           <div
-            className="w-10 h-10 rounded-md bg-indigo-700 text-white font-extrabold flex justify-center items-center text-xl"
+            className="w-10 h-10 rounded-md bg-[rgba(196,30,86,1)] text-[rgba(196,30,86,0.2)]  font-extrabold flex justify-center items-center text-xl"
 
           >{data.user?.username.charAt(0)}</div>
           <div
@@ -50,7 +50,7 @@ export default function Sidebar({ children }) {
           `}
           >
             <div className="leading-4">
-              <p><span className="font-semibold py-1.5">{data.user?.username}</span> <span className=" bg-indigo-700 capitalize text-xs px-2 py-1 rounded-md text-white mb-2">{data.user?.role}</span></p>
+              <p><span className="font-semibold py-1.5">{data.user?.username}</span> <span className=" bg-[#C41E5633] capitalize text-xs px-2 py-1 rounded-md text-[rgba(196,30,86,1)] mb-2">{data.user?.role}</span></p>
               <span className="text-xs text-gray-600">{data.user?.email}</span>
             </div>
             <MoreVertical size={20} />
@@ -74,8 +74,8 @@ export function SidebarItem({ icon, text, alert, path}) {
         transition-colors group
         ${
           pathname === path
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
+            ? "bg-[rgba(196,30,86,0.2)] text-[rgba(196,30,86,1)] "
+            : "hover:bg-[rgba(196,30,86,0.2)] text-gray-600"
         }
     `}
     onClick={()=>router.push(path)}
@@ -114,7 +114,7 @@ export function SidebarItem({ icon, text, alert, path}) {
 
 export  function SignOutButton() {
   return (
-            <button className="px-4 py-2 text-sm font-medium text-indigo-500 bg-gray-200 rounded hover:bg-indigo-200" onClick={()=>signOut()}>
+            <button className="px-4 py-2 text-sm font-medium text-[rgba(196,30,86,1)] bg-[rgba(196,30,86,0.2)] rounded hover:bg-[rgba(196,30,86,0.2)]" onClick={()=>signOut()}>
               Logout
             </button>
   )
