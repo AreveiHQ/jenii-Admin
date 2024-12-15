@@ -36,6 +36,7 @@ export async function POST(request) {
     const metal = formData.get('metal');
     const stock = formData.get('stock');
     const mode = formData.get('mode');
+    const sku = formData.get('sku');
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
     if (!imageFiles.length || !name || !price || !category || !subCategory) {
@@ -64,6 +65,7 @@ export async function POST(request) {
 
     if (mode && mode === "offline") {
       const product = new OfflineProduct({
+        sku,
         images,
         name,
         description,
@@ -81,6 +83,7 @@ export async function POST(request) {
       return NextResponse.json(newProduct, { status: 201 });
     } else {
       const product = new Product({
+        sku,
         images,
         name,
         description,

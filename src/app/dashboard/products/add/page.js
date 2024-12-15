@@ -26,6 +26,7 @@ import Image from "next/image";
 const SUPPORTED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const productSchema = Yup.object().shape({
+  sku: Yup.string().required("sku is required"),
   name: Yup.string().required("Product name is required"),
   price: Yup.number().positive("Price must be positive").required("Price is required"),
   discountPrice: Yup.number()
@@ -116,6 +117,7 @@ export default function AddNewProduct() {
     try {
       console.log(formData)
       const form = new FormData();
+      form.append("sku", formData.sku);
       form.append("name", formData.name);
       form.append("description", formData.description);
       form.append("price", formData.price);
@@ -213,6 +215,16 @@ export default function AddNewProduct() {
               </div>
                 <p className="error text-red-500 text-sm">{errors.images?.message}</p>
                  {/* Product Name */}
+                 <div className="">
+                  <label className="block text-lg font-medium mb-1">SKU Code</label>
+                  <input
+                    {...register("sku")}
+                    className={`form-input ${errors.sku ? "is-invalid" : ""} w-full h-12 px-4 border border-gray-300 rounded focus:outline-none focus:border-blue-500 `}
+                    placeholder="Enter product name"
+                  />
+                  <p className="error text-red-500 text-sm">{errors.sku?.message}</p>
+                </div>
+
                  <div className="">
                   <label className="block text-lg font-medium mb-1">Product Name</label>
                   <input
