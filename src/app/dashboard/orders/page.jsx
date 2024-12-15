@@ -18,27 +18,29 @@ const OrdersDashboard = () => {
     const fetchOrders = async () => {
       try {
         const res = await axios.get("/api/orders");
+        console.log(res.data.orders[1].orders);
         const formattedData = res.data.orders
           .map((order) =>
             order.orders.flatMap((subOrder) =>
               subOrder.items.map((item) => ({
-                customerName: order.userId?.name || "N/A",
+                customerName: subOrder.customer.name || "N/A",
                 itemName: item.productId?.name || "N/A",
                 quantity: item.quantity,
-                paymentStatus: subOrder.paymentStatus,
-                orderId: subOrder.orderId.split("_")[1],
-                address: subOrder.address,
-                orderStatus: subOrder.orderStatus,
-                total: `Rs.${subOrder.amount}`,
-                date: subOrder.date || "N/A",
+                paymentStatus: subOrder.payment.mode,
+                orderId: subOrder.orderID,
+                address: subOrder.customer.address,
+                orderStatus: subOrder.orderStatus, 
+                total: `Rs.${subOrder.items[0].price}/-`,
+                date: new Date(subOrder.createdAt).toLocaleDateString("en-GB") || "N/A",
                 delivery: subOrder.delivery || "N/A",
-                items: subOrder.items.length,
+                items: subOrder.items[0].quantity,
               }))
             )
           )
           .flat();
 
         setRowData(formattedData);
+       
         setCount(formattedData.length);
       } catch (err) {
         console.error("Error fetching orders:", err);
@@ -59,9 +61,9 @@ const OrdersDashboard = () => {
     setRowData(updatedRowData);
   
   
-    axios.put(`/api/orders/${params.data.orderId}`, { orderStatus: newStatus })
-      .then(() => console.log("Status updated"))
-      .catch((err) => console.error("Error updating status:", err));
+    // axios.put(`/api/orders/${params.data.orderId}`, { orderStatus: newStatus })
+    //   .then(() => console.log("Status updated"))
+    //   .catch((err) => console.error("Error updating status:", err));
   };
 
   const onBtExportCsv = useCallback(() => {
@@ -98,7 +100,7 @@ const OrdersDashboard = () => {
       field: "paymentStatus",
       flex: 1,
       cellStyle: (params) => ({
-        color: params.value === "confirmed" ? "green" : "orange",
+        color: params.value === "Prepaid" ? "green" : "orange",
         backgroundColor: "rgb(187, 247, 208)",
       }),
     },
