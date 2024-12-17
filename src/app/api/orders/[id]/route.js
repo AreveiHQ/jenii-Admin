@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function PUT(request, { params }) {
   const { orderStatus } = await request.json(); 
-  const { id } = params; 
+  const { id } = await params; 
 
   try {
     
