@@ -20,11 +20,13 @@ import "./product.css";
 import calculatedDiscount from "@/utils/productUtils";
 import { FaArrowDown } from "react-icons/fa";
 import { Badge } from "@mui/material";
+import Image from "next/image";
 
 // Validation schema using Yup
 const SUPPORTED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const productSchema = Yup.object().shape({
+  sku: Yup.string().required("sku is required"),
   name: Yup.string().required("Product name is required"),
   price: Yup.number().positive("Price must be positive").required("Price is required"),
   discountPrice: Yup.number()
@@ -110,11 +112,14 @@ export default function AddNewProduct() {
     setImageFile(filtered);
     setPreview(filteredpreview);
   }
+  const [loading,setLoading] = useState(false);
 
   const onSubmit = async (formData) => {
     try {
+      setLoading(true)
       console.log(formData)
       const form = new FormData();
+      form.append("sku", formData.sku);
       form.append("name", formData.name);
       form.append("description", formData.description);
       form.append("price", formData.price);
@@ -136,7 +141,9 @@ export default function AddNewProduct() {
       document.querySelector(".postform").classList.remove("jadu"); 
       toast.success("Product added successfully!");
       reset(); // Reset form after successful submission
+      setLoading(false)
     } catch (error) {
+      setLoading(false)
       toast.error(error.response?.data?.message || "Failed to add product");
     }
   };
@@ -165,7 +172,9 @@ export default function AddNewProduct() {
 
               
               <div className="upload-item ">
-              <img
+              <Image
+              width={30}
+              height={30}
                 src="https://www.codingnepalweb.com/demos/resize-and-compress-image-javascript/upload-icon.svg"
                 className="mx-auto"
                 alt="Upload"
@@ -178,7 +187,8 @@ export default function AddNewProduct() {
             <div className="content space-y-3 w-full">
             <div className="overflow-x-scroll w-min horizon-scroll  flex gap-2 pt-3 ">
             <div className=" bg-[#edeaf1] rounded-md  p-7" onClick={()=> fileInput.current.click()}>
-                    <img
+                    <Image  width={20}
+              height={20}
                 src="https://www.codingnepalweb.com/demos/resize-and-compress-image-javascript/upload-icon.svg"
                 alt="Upload"
                 id="postimage"
@@ -191,16 +201,16 @@ export default function AddNewProduct() {
                   
                   <div className="flex gap-3 flex-row-reverse  ">
                     {preview?.map((preview, index) => (
-                     <Badge badgeContent="x" color="primary" >
-                        <div className="w-32 h-32" onClick={()=>FilterImages(index)}>
-                      <img
+                        <div className="w-32 h-32 px-2" onClick={()=>FilterImages(index)}>
+                      <Image
+                       width={100}
+                       height={100}
                         key={index}
                         src={preview}
                         alt={`Preview ${index + 1}`}
                         className="w-32 h-32 object-cover rounded"
                       />
                       </div>
-                      </Badge>
                     ))}
                     
                   </div>
@@ -209,6 +219,16 @@ export default function AddNewProduct() {
               </div>
                 <p className="error text-red-500 text-sm">{errors.images?.message}</p>
                  {/* Product Name */}
+                 <div className="">
+                  <label className="block text-lg font-medium mb-1">SKU Code</label>
+                  <input
+                    {...register("sku")}
+                    className={`form-input ${errors.sku ? "is-invalid" : ""} w-full h-12 px-4 border border-gray-300 rounded focus:outline-none focus:border-blue-500 `}
+                    placeholder="Enter product name"
+                  />
+                  <p className="error text-red-500 text-sm">{errors.sku?.message}</p>
+                </div>
+
                  <div className="">
                   <label className="block text-lg font-medium mb-1">Product Name</label>
                   <input
@@ -365,9 +385,15 @@ export default function AddNewProduct() {
 
         </AccordionDetails>
       </Accordion>
+      {loading? <button type="button" className="submit-btn  duration-[500ms,800ms]" disabled>
+              <div className="flex gap-1 items-center justify-center "> 
+            <div className="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4"></div>
+            Submitting...
+        </div>
+</button>: 
               <button type="submit" className="submit-btn">
                 Submit
-              </button>
+              </button>}
             </div>
           </form>
         </div>

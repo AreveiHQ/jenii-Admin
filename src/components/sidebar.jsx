@@ -1,6 +1,7 @@
 "use client"
 import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useContext, createContext, useState, useEffect } from "react"
 
@@ -16,8 +17,10 @@ export default function Sidebar({ children }) {
     <aside className="h-screen sticky top-0">
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
-          <img
-            src="/jeniiLogo.png"
+          <Image
+           width={80}
+           height={30}
+            src="/jenii.png"
             className={`overflow-hidden transition-all ${
               expanded ? "w-32" : "w-0"
             }`}
@@ -36,11 +39,10 @@ export default function Sidebar({ children }) {
         </SidebarContext.Provider>
 
         {data && <div className="border-t flex p-3">
-          <img
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
-            alt=""
-            className="w-10 h-10 rounded-md"
-          />
+          <div
+            className="w-10 h-10 rounded-md bg-[rgba(196,30,86,1)] text-white  font-extrabold flex justify-center items-center text-xl"
+
+          >{data.user?.username.charAt(0)}</div>
           <div
             className={`
               flex justify-between items-center
@@ -48,7 +50,7 @@ export default function Sidebar({ children }) {
           `}
           >
             <div className="leading-4">
-              <p><span className="font-semibold py-1.5">{data.user?.username}</span> <span className=" bg-indigo-700 capitalize text-xs px-2 py-1 rounded-md text-white">{data.user?.role}</span></p>
+              <p><span className="font-semibold py-1.5">{data.user?.username}</span> <span className=" bg-[#C41E5633] capitalize text-xs px-2 py-1 rounded-md text-[rgba(196,30,86,1)] mb-2">{data.user?.role}</span></p>
               <span className="text-xs text-gray-600">{data.user?.email}</span>
             </div>
             <MoreVertical size={20} />
@@ -72,8 +74,8 @@ export function SidebarItem({ icon, text, alert, path}) {
         transition-colors group
         ${
           pathname === path
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
+            ? "bg-[rgba(196,30,86,0.2)] text-[rgba(196,30,86,1)] "
+            : "hover:bg-[rgba(196,30,86,0.2)] text-gray-600"
         }
     `}
     onClick={()=>router.push(path)}
@@ -112,7 +114,7 @@ export function SidebarItem({ icon, text, alert, path}) {
 
 export  function SignOutButton() {
   return (
-            <button className="px-4 py-2 text-sm font-medium text-indigo-500 bg-gray-200 rounded hover:bg-indigo-200" onClick={()=>signOut()}>
+            <button className="px-4 py-2 text-sm font-medium text-[rgba(196,30,86,1)] bg-[rgba(196,30,86,0.2)] rounded hover:bg-[rgba(196,30,86,0.2)]" onClick={()=>signOut()}>
               Logout
             </button>
   )
