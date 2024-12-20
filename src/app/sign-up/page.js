@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
+import Image from 'next/image';
 
 const schema = yup.object().shape({
   username: yup.string().matches(/^[A-Za-z0-9]+$/, "Username must contain only letters and numbers, with no spaces")
@@ -49,7 +50,7 @@ export default function Users() {
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img className="mx-auto h-20 w-auto" src="https://cdn.bio.link/uploads/profile_pictures/2024-10-07/WpsNql0qow0baLnfnBowFm8v5fK9twVm.png" alt="Your Company" />
+      <Image width={20} height={20} className="mx-auto h-20 w-auto" src="https://cdn.bio.link/uploads/profile_pictures/2024-10-07/WpsNql0qow0baLnfnBowFm8v5fK9twVm.png" alt="Your Company" />
         <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">Add New Admin</h2>
       </div>
 

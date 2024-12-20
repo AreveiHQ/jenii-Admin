@@ -1,23 +1,54 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import * as Yup from "yup";
+import { useFormik } from "formik";
 
 const EditProductForm = ({ productId, onClose }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    price: "",
-    stock: "",
-    category: "",
-  });
   const [loading, setLoading] = useState(false);
 
-  // Fetch product details
+  // Formik initial values and validation schema
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      price: "",
+      stock: "",
+      category: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .min(2, "Name must be at least 2 characters")
+        .required("Name is required"),
+      price: Yup.number()
+        .positive("Price must be a positive number")
+        .required("Price is required"),
+      stock: Yup.number()
+        .integer("Stock must be an integer")
+        .min(0, "Stock cannot be negative")
+        .required("Stock is required"),
+      category: Yup.string().required("Category is required"),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        await axios.put(`/api/products/${productId}`, values);
+        alert("Product updated successfully.");
+        onClose(); // Close the form
+      } catch (error) {
+        console.error("Error updating product:", error);
+        alert("An error occurred while updating the product.");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
+  // Fetch product details and populate form
   useEffect(() => {
     const fetchProductDetails = async () => {
-        try {
-          console.log(productId)
-        const response = await fetch(`/api/products/${productId}`);
-        if (!response.ok) throw new Error("Failed to fetch product details");
-        const product = await response.json();
-        setFormData({
+      try {
+        const response = await axios.get(`/api/products/${productId}`);
+        const product = response.data;
+        formik.setValues({
           name: product.name,
           price: product.price,
           stock: product.stock,
@@ -30,43 +61,6 @@ const EditProductForm = ({ productId, onClose }) => {
 
     fetchProductDetails();
   }, [productId]);
-
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        alert("Product updated successfully.");
-        onClose(); // Close the form
-      } else {
-        throw new Error("Failed to update product.");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
-      alert("An error occurred while updating the product.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div
@@ -85,7 +79,8 @@ const EditProductForm = ({ productId, onClose }) => {
       }}
     >
       <h2 style={{ textAlign: "center", color: "#6a1b9a" }}>Edit Product</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
+        {/* Name Input */}
         <div style={{ marginBottom: "15px" }}>
           <label
             htmlFor="name"
@@ -97,9 +92,9 @@ const EditProductForm = ({ productId, onClose }) => {
             type="text"
             id="name"
             name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             style={{
               width: "100%",
               padding: "10px",
@@ -107,7 +102,14 @@ const EditProductForm = ({ productId, onClose }) => {
               border: "1px solid #ccc",
             }}
           />
+          {formik.touched.name && formik.errors.name && (
+            <p style={{ color: "red", fontSize: "12px" }}>
+              {formik.errors.name}
+            </p>
+          )}
         </div>
+
+        {/* Price Input */}
         <div style={{ marginBottom: "15px" }}>
           <label
             htmlFor="price"
@@ -119,9 +121,9 @@ const EditProductForm = ({ productId, onClose }) => {
             type="number"
             id="price"
             name="price"
-            value={formData.price}
-            onChange={handleChange}
-            required
+            value={formik.values.price}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             style={{
               width: "100%",
               padding: "10px",
@@ -129,7 +131,14 @@ const EditProductForm = ({ productId, onClose }) => {
               border: "1px solid #ccc",
             }}
           />
+          {formik.touched.price && formik.errors.price && (
+            <p style={{ color: "red", fontSize: "12px" }}>
+              {formik.errors.price}
+            </p>
+          )}
         </div>
+
+        {/* Stock Input */}
         <div style={{ marginBottom: "15px" }}>
           <label
             htmlFor="stock"
@@ -141,9 +150,9 @@ const EditProductForm = ({ productId, onClose }) => {
             type="number"
             id="stock"
             name="stock"
-            value={formData.stock}
-            onChange={handleChange}
-            required
+            value={formik.values.stock}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             style={{
               width: "100%",
               padding: "10px",
@@ -151,7 +160,14 @@ const EditProductForm = ({ productId, onClose }) => {
               border: "1px solid #ccc",
             }}
           />
+          {formik.touched.stock && formik.errors.stock && (
+            <p style={{ color: "red", fontSize: "12px" }}>
+              {formik.errors.stock}
+            </p>
+          )}
         </div>
+
+        {/* Category Input */}
         <div style={{ marginBottom: "15px" }}>
           <label
             htmlFor="category"
@@ -163,9 +179,9 @@ const EditProductForm = ({ productId, onClose }) => {
             type="text"
             id="category"
             name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
+            value={formik.values.category}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             style={{
               width: "100%",
               padding: "10px",
@@ -173,7 +189,14 @@ const EditProductForm = ({ productId, onClose }) => {
               border: "1px solid #ccc",
             }}
           />
+          {formik.touched.category && formik.errors.category && (
+            <p style={{ color: "red", fontSize: "12px" }}>
+              {formik.errors.category}
+            </p>
+          )}
         </div>
+
+        {/* Buttons */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
             type="button"
