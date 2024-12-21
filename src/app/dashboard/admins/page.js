@@ -1,84 +1,112 @@
-"use client"
-import React from "react";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, } from "@nextui-org/table";
-
-import {columns, users} from "./data";
-import { FaEye } from "react-icons/fa";
-import { Edit, Trash } from "iconoir-react";
-
-const statusColorMap = {
-  active: "bg-green-100",
-  paused: "bg-red-100",
-  vacation: "bg-yellow-100",
-};
+"use client";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Edit, Eye } from "iconoir-react";
+import { EyeIcon, Pen } from "lucide-react";
 
 export default function App() {
-  const renderCell = React.useCallback((user, columnKey) => {
-    const cellValue = user[columnKey];
+  const [admins, setAdmins] = useState([]);
+  const [adminCount, setAdminCount] = useState(0);
+  const [loading, setLoading] = useState(true); 
 
-    switch (columnKey) {
-      case "name":
-        return (
-                <div class="align-middle flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white justify-center">
-                    <img class="w-10 h-10 rounded-full" src={user.avatar}alt="Jese image"/>
-                    <div class="ps-3">
-                        <div class="text-base font-semibold">{cellValue}</div>
-                        <div class="font-normal text-gray-500">{user.email}</div>
-                    </div>  
-                </div>
-        );
-      case "role":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-sm capitalize">{cellValue}</p>
-            <p className="text-bold text-sm capitalize text-default-400">{user.team}</p>
-          </div>
-        );
-      case "status":
-        return (
-                <span class={`${statusColorMap[user.status]} text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300`}>{cellValue}</span>
-        );
-      case "actions":
-        return (
-          <div className="relative flex items-center gap-2">
-            {/* <Tooltip content="Details"> */}
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <FaEye />
-              </span>
-            {/* </Tooltip> */}
-            {/* <Tooltip content="Edit user"> */}
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <Edit />
-              </span>
-            {/* </Tooltip> */}
-            {/* <Tooltip color="danger" content="Delete user"> */}
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <Trash />
-              </span>
-            {/* </Tooltip> */}
-          </div>
-        );
-      default:
-        return cellValue;
-    }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/admin");
+        console.log(response.data);
+        let data = response.data.users;
+        console.log(data);
+        setAdmins(data);
+        setAdminCount(data.length); 
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false); 
+      }
+    };
+    fetchData();
   }, []);
 
+  if (loading) {
+    return <p>Loading...</p>; 
+  }
+
   return (
-  <Table aria-label="Example table with custom cells">
-      <TableHeader columns={columns}>
-        {(column) => (
-          <TableColumn key={column.uid} align="center">
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody items={users}>
-        {(item) => (
-          <TableRow key={item.id} >
-            {(columnKey) => <TableCell align="center">{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <>
+      
+      <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-4">
+        <h3 className="text-lg font-semibold text-gray-700">
+          Admin Users{" "}
+          <span className="text-pink-500">({adminCount})</span>
+        </h3>
+        <div className="flex items-center gap-4">
+          <button className="flex items-center gap-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">
+            <img className="w-4" src="/filter.png" alt="filter" /> Filters
+          </button>
+          <button
+            className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
+          >
+            Manage
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-gray-600 font-medium">Serial</th>
+              <th className="px-6 py-3 text-gray-600 font-medium">User</th>
+              <th className="px-6 py-3 text-gray-600 font-medium">Email</th>
+              <th className="px-6 py-3 text-gray-600 font-medium">Role</th>
+              <th className="px-6 py-3 text-gray-600 font-medium">Status</th>
+              <th className="px-6 py-3 text-gray-600 font-medium">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {admins.map((admin, idx) => (
+              <tr key={admin.id} className="border-b">
+                <td className="px-6 py-3">{idx + 1}</td>
+                <td className="px-6 py-3">{admin.username}</td>
+                <td className="px-6 py-3">{admin.email}</td>
+                <td className="px-6 py-3">{admin.role}</td>
+                <td className="px-6 py-3">
+                  <span
+                    className={`px-2 py-1 rounded text-sm ${
+                      admin.active
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {admin.active?"Active":"Not Active"}
+                  </span>
+                </td>
+                <td className="px-6 py-3 flex items-center gap-2">
+                  <button className="text-blue-500 hover:underline"><EyeIcon/></button>
+                  <button className="text-red-500 hover:underline text-sm">
+                  <Edit/>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-4">
+        <p className="text-sm text-gray-600">
+          Showing {admins.length} admin{admins.length > 1 ? "s" : ""}
+        </p>
+        <div className="flex items-center gap-2">
+          <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">
+            Previous
+          </button>
+          <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">
+            Next
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
