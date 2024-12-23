@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 
-// Validation schema for the coupon form
+
 const CouponSchema = Yup.object().shape({
   code: Yup.string().required("Coupon code is required"),
   discountType: Yup.string().required("Select a discount type"),
