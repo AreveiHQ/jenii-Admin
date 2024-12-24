@@ -1,24 +1,6 @@
 import mongoose from 'mongoose';
 
-const reviewSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  rating: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
-  },
-  comment: {
-    type: String,
-    required: true,
-  },
-}, {
-  timestamps: true,
-});
+
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -64,9 +46,9 @@ const productSchema = new mongoose.Schema({
       ref: 'Category',
     }
   },
-  collectionName:{
+  collectionName:[{
     type:String,
-  },
+  }],
   metal: {
     type: String,
     enum: ['silver', 'gold', 'platinum', 'rose gold'],
@@ -77,7 +59,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  reviews: [reviewSchema],
+  reviews: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Review',
+  },
   averageRating: {
     type: Number,
     default: 0,
