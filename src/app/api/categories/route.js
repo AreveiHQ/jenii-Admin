@@ -50,6 +50,8 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Category Added Successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error adding category:', error);
+    console.error("Error adding category:", error.message);
+    console.error(error.stack);
     return NextResponse.json({ message: 'Server error',error }, { status: 500 });
   }
 }
