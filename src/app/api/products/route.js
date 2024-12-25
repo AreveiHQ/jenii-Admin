@@ -25,6 +25,7 @@ export async function POST(request) {
   await connectToDB();
   try {
     const formData = await request.formData();
+    
     const imageFiles = formData.getAll('images'); // Assumes the key for images is 'images'
     const name = formData.get('name');
     const description = formData.get('description');
@@ -32,7 +33,8 @@ export async function POST(request) {
     const discountPrice = formData.get('discountPrice');
     const category = formData.get('category');
     const subCategory = formData.get('subCategory');
-    const collection = formData.get('collection');
+    const collection = formData.getAll('collections');
+    console.log(collection)
     const metal = formData.get('metal');
     const stock = formData.get('stock');
     const mode = formData.get('mode');
@@ -73,7 +75,7 @@ export async function POST(request) {
         discountPrice,
         discountPercent,
         category: { name: subCategory, id: isExist._id },
-        collection,
+        collectionName:collection,
         metal,
         stock,
         slug
@@ -91,7 +93,7 @@ export async function POST(request) {
         discountPrice,
         discountPercent,
         category: { name: subCategory, id: isExist._id },
-        collection,
+        collectionName:collection,
         metal,
         stock,
         slug

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Category from '@/models/category';
 import { uploadToCloudinary } from '@/utils/cloudinary'; // Assuming this is your utility for Cloudinary
 import { connectToDB } from '@/db';
+import slugify from 'slugify';
 
 
 
@@ -13,7 +14,6 @@ export async function POST(request) {
     const banners = formData.getAll('bannerImages');
     const imageFile = formData.get('image');
     const parentCategory = formData.get('parentCategory').toLowerCase();
-
     // Check if category already exists
     const isExist = await Category.findOne({ name });
     if (isExist && isExist.parentCategory === parentCategory) {
@@ -38,6 +38,7 @@ export async function POST(request) {
     // Create a new category
     const newCategory = new Category({
       name,
+      slug:slugify(name),
       bannerImages,
       image: uploadedImage.secure_url,
       parentCategory,
@@ -49,6 +50,8 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Category Added Successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error adding category:', error);
+    console.error("Error adding category:", error.message);
+    console.error(error.stack);
     return NextResponse.json({ message: 'Server error',error }, { status: 500 });
   }
 }
