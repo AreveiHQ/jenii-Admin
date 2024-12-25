@@ -19,6 +19,8 @@ const CategorySchema = Yup.object().shape({
 
 export default function UploadCategory() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [bannerPreviews, setBannerPreviews] = useState([]);
 
   const {
     register,
@@ -52,6 +54,19 @@ export default function UploadCategory() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleBannerChange = (event) => {
+    const files = Array.from(event.target.files);
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setBannerPreviews(previews);
   };
 
   return (
@@ -109,20 +124,30 @@ export default function UploadCategory() {
         <div className="p-6 bg-white shadow-md rounded-md">
           <h2 className="text-xl font-bold mb-4">Media</h2>
 
-          {/* Image Upload */}
           <h3 className="text-lg font-medium mb-2">Category Image</h3>
           <div className="mb-4 border-2 border-dashed border-gray-300 p-4 rounded-md text-center">
-            <div className="mb-2 flex justify-center">
-              <img src="/icon.png" className="w-14" />
-            </div>
-            <p className="text-sm text-gray-500 mb-2">Drag and drop image here</p>
+            {!imagePreview && <img src="/icon.png" className="w-14 mx-auto mb-4" />}
             <input
               type="file"
               {...register("image")}
               accept="image/*"
               className="hidden"
               id="imageInput"
+              onChange={(e) => {
+                handleImageChange(e);
+                register("image").onChange(e);
+              }}
             />
+            <h3 className="text-gray-400 p-2">Drag and drop icon here</h3>
+            {imagePreview && (
+              <div className="mb-4">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="mx-auto w-32 h-32 object-cover rounded-md"
+                />
+              </div>
+            )}
             <button
               type="button"
               className="px-4 py-2 bg-pink-500 text-white rounded-md"
@@ -135,13 +160,9 @@ export default function UploadCategory() {
             )}
           </div>
 
-          {/* Banner Images Upload */}
           <h3 className="text-lg font-medium mb-2">Banner Images</h3>
           <div className="mb-4 border-2 border-dashed border-gray-300 p-4 rounded-md text-center">
-            <div className="mb-2 flex justify-center">
-              <img src="/banner.png" className="w-14" />
-            </div>
-            <p className="text-sm text-gray-500 mb-2">Drag and drop banner here</p>
+            {!bannerPreviews.length && <img src="/banner.png" className="w-14 mx-auto mb-4" />}
             <input
               type="file"
               {...register("bannerImages")}
@@ -149,7 +170,22 @@ export default function UploadCategory() {
               multiple
               className="hidden"
               id="bannerInput"
+              onChange={(e) => {
+                handleBannerChange(e);
+                register("bannerImages").onChange(e);
+              }}
             />
+            <h3 className="text-gray-400 p-2">Drag and drop banner here</h3>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {bannerPreviews.map((preview, index) => (
+                <img
+                  key={index}
+                  src={preview}
+                  alt={`Banner Preview ${index + 1}`}
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+              ))}
+            </div>
             <button
               type="button"
               className="px-4 py-2 bg-pink-500 text-white rounded-md"
@@ -168,11 +204,6 @@ export default function UploadCategory() {
     </div>
   );
 }
-
-
-
-
-
 
 
 
