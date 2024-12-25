@@ -9,6 +9,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
+import Select from 'react-select';
 
 import Alert from '@mui/material/Alert';
 const JoditEditor = dynamic(() => import('jodit-react'), {
@@ -21,7 +22,41 @@ import calculatedDiscount from "@/utils/productUtils";
 import { FaArrowDown } from "react-icons/fa";
 import { Badge } from "@mui/material";
 import Image from "next/image";
+import { collectionsList } from "@/utils/data";
+const colourOptions = collectionsList.map((item) => ({
+  label: item.name,
+  value: item.slug,
+}));
 
+
+const colourStyles = {
+  control: (styles) => ({ ...styles, backgroundColor: 'white' }),
+  option: (styles, { isSelected, isFocused }) => ({
+    ...styles,
+    backgroundColor: isSelected
+      ? '#4CAF50'
+      : isFocused
+      ? '#f0f0f0'
+      : undefined,
+    color: isSelected ? 'white' : '#333',
+  }),
+  multiValue: (styles) => ({
+    ...styles,
+    backgroundColor: '#E0E0E0',
+  }),
+  multiValueLabel: (styles) => ({
+    ...styles,
+    color: '#333',
+  }),
+  multiValueRemove: (styles) => ({
+    ...styles,
+    color: '#FF6347',
+    ':hover': {
+      backgroundColor: '#FF6347',
+      color: 'white',
+    },
+  }),
+};
 // Validation schema using Yup
 const SUPPORTED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -51,7 +86,13 @@ const productSchema = Yup.object().shape({
     }
     return true;
   }).test("required", "Please upload at least one image", (value) => value && value.length > 0),
-  collection: Yup.string(),
+ selectedCollections: Yup.array()
+     .of(
+       Yup.object().shape({
+         value: Yup.string().required('Collection is required'),
+         label: Yup.string().required('Label is required'),
+       })
+     ),
   metal: Yup.string(),
   mode: Yup.string(),
 });
@@ -60,8 +101,10 @@ const productSchema = Yup.object().shape({
 export default function AddNewProduct() {
   const { register, handleSubmit, setValue, control, formState: { errors }, reset } = useForm({
     resolver: yupResolver(productSchema),
+    defaultValues: {
+      selectedCollections: [], // Default selected values
+    },
   });
-  const collections = ['Hot picks','Top Products'];
   const fileInput = useRef(null);
   const categories= ['men','women'];
   const [subCategories, setSubCategories] = useState([]);
@@ -115,6 +158,7 @@ export default function AddNewProduct() {
   const [loading,setLoading] = useState(false);
 
   const onSubmit = async (formData) => {
+    console.log(formData)
     try {
       setLoading(true)
       console.log(formData)
@@ -129,8 +173,7 @@ export default function AddNewProduct() {
      form.append("stock", formData.stock);
       form.append("metal", formData.metal);
       form.append("mode", formData.mode);
-      if( formData.collection) form.append("collectionName", formData.collection);
-      // Add images
+      Array.from(formData.selectedCollections).forEach((coll) => form.append("collections", coll.value))
       Array.from(formData.images).forEach((image) => form.append("images", image));
 
       await axios.post("/api/products", form, {
@@ -311,6 +354,7 @@ export default function AddNewProduct() {
                     render={({ field }) => (
                       <JoditEditor value={field.value} onChange={field.onChange} />
                     )}
+                    
                   />
                   <p className="error text-red-500 text-sm">{errors.description?.message}</p>
                 </div>
@@ -339,20 +383,26 @@ export default function AddNewProduct() {
       </div>
 
       {/* collection */}
-      <div>
+      <div className=" col-span-2">
         <label className="block text-lg font-medium mb-1">Collection</label>
-        <select
-          {...register("collection")}
-          className={`form-input ${errors.collection ? "is-invalid" : ""} w-full h-12 px-4 border border-gray-300 rounded focus:outline-none focus:border-blue-500`}
-        >
-          <option value="">Select Collection</option>
-          {collections.map((cat,ind) => (
-            <option key={ind} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-        <p className="error text-red-500 text-sm">{errors.collection?.message}</p>
+        <Controller
+        name="selectedCollections"
+        control={control}
+        render={({ field }) => (
+          <Select
+            {...field}
+            closeMenuOnSelect={false}
+            isMulti
+            options={colourOptions}
+            styles={colourStyles}
+            classNamePrefix="react-select"
+          />
+        )}
+      />
+
+      {errors.selectedCollections && (
+        <p className="text-red-500 text-sm">{errors.selectedCollections.message}</p>
+      )}
       </div>
 
       {/* Mode */}

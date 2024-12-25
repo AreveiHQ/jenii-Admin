@@ -84,7 +84,6 @@ export default function Users() {
                 <th className="px-6 py-3 text-gray-600 font-medium">Phone</th>
                 <th className="px-6 py-3 text-gray-600 font-medium">Role</th>
                 <th className="px-6 py-3 text-gray-600 font-medium">Status</th>
-                <th className="px-6 py-3 text-gray-600 font-medium">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -105,10 +104,6 @@ export default function Users() {
                     >
                       {user.isVerified?"Verified":"Not Verified"}
                     </span>
-                  </td>
-                  <td className="px-6 py-3 flex items-center gap-2">
-                    <button className="text-blue-500 hover:text-blue-700"><Edit/></button>
-                    <button className="text-red-500 hover:text-red-700"><MdDelete/></button>
                   </td>
                 </tr>
               ))}

@@ -5,6 +5,11 @@ const categorySchema = mongoose.Schema({
                 type:String,
         }
         ],
+        slug:{
+                type:String,
+                required:true,
+                unique:true
+        },
         image:{
                 type:String,
         },
@@ -16,7 +21,7 @@ const categorySchema = mongoose.Schema({
         parentCategory:{
                 type:String,
                 required:true,
-                enum: ['men','women',"kid"],
+                enum: ['men','women'],
         },
     
 })
