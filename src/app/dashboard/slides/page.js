@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "axios";
+import { MenuItem, TextField } from "@mui/material";
 
 const validationSchema = Yup.object().shape({
   links: Yup.string().url("Invalid URL format").required("Links are required"),
@@ -23,6 +24,7 @@ export default function SlideUploader() {
     handleSubmit,
     formState: { errors },
     setValue,
+    control,
     reset,
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -53,12 +55,12 @@ export default function SlideUploader() {
       const response = await axios.post("/api/slides", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Slide uploaded successfully:", response.data);
+      alert(`Slide uploaded successfully: ${response.data}`);
       reset();
       setDesktopPreview(null);
       setMobilePreview(null);
     } catch (error) {
-      console.error("Failed to upload slide:", error);
+      alert(`Failed to upload slide: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -88,22 +90,26 @@ export default function SlideUploader() {
             )}
           </div>
 
+          {/* Updated Section Field */}
           <div>
-            <label htmlFor="section" className="block text-sm font-medium">
-              Section
-            </label>
-            <input
-              id="section"
-              type="text"
-              {...register("section")}
-              className={`mt-2 p-2 w-full border rounded-md ${
-                errors.section ? "border-red-500" : ""
-              }`}
-              placeholder="Enter section name"
+            <Controller
+              name="section"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  select
+                  label="Select Section"
+                  variant="outlined"
+                  fullWidth
+                  {...field}
+                  error={!!errors.section}
+                  helperText={errors.section?.message}
+                >
+                  <MenuItem value="hero-slider">Hero Slider</MenuItem>
+                  <MenuItem value="about-slider">About Slider</MenuItem>
+                </TextField>
+              )}
             />
-            {errors.section && (
-              <p className="text-red-500 text-sm mt-1">{errors.section.message}</p>
-            )}
           </div>
 
           <button
@@ -118,11 +124,11 @@ export default function SlideUploader() {
         </form>
       </div>
 
-      {/* Image Upload Section */}
+     
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md p-6">
         <h2 className="text-2xl font-semibold mb-4">Upload Media</h2>
 
-        {/* Desktop Banner */}
+   
         <div className="w-full text-center mb-4">
           <label
             htmlFor="desktopbanner"
@@ -135,7 +141,7 @@ export default function SlideUploader() {
             type="file"
             accept="image/*"
             onChange={(e) => handleImageChange(e, "desktopbanner")}
-            className="hidden "
+            className="hidden"
           />
           <div className="w-full h-48 flex items-center justify-center bg-gray-100 border rounded-md">
             {desktopPreview ? (
@@ -150,7 +156,7 @@ export default function SlideUploader() {
           </div>
         </div>
 
-        {/* Mobile Banner */}
+      
         <div className="w-full text-center">
           <label
             htmlFor="mobilebanner"
