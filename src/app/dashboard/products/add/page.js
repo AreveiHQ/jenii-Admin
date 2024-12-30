@@ -359,7 +359,8 @@ export default function AddProduct() {
                   </div>
 
                   {/* Collection */}
-                  <label className="block text-lg font-medium mb-1">Collections</label>
+                  <div className="col-span-1">   
+                  <label className="block text-lg font-medium">Collections</label>
                   <Controller
                     name="selectedCollections"
                     control={control}
@@ -392,6 +393,7 @@ export default function AddProduct() {
                   />
 
 
+                  </div>
 
 
 
