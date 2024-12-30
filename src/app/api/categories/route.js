@@ -3,6 +3,7 @@ import Category from '@/models/category';
 import { uploadToCloudinary } from '@/utils/cloudinary'; // Assuming this is your utility for Cloudinary
 import { connectToDB } from '@/db';
 import slugify from 'slugify';
+import { uploadToS3 } from '@/utils/awsS3Bucket';
 
 
 
@@ -15,6 +16,8 @@ export async function POST(request) {
     const imageFile = formData.get('image');
     const parentCategory = formData.get('parentCategory').toLowerCase();
     // Check if category already exists
+
+    console.log( banners , imageFile)
     const isExist = await Category.findOne({ name });
     if (isExist && isExist.parentCategory === parentCategory) {
       return NextResponse.json({ message: 'Category Already Exists' }, { status: 403 });
@@ -22,25 +25,22 @@ export async function POST(request) {
     
 
     // Handle banner images upload
-    const bannerUploadPromises = banners.map(async (file) => {
-      const buffer = Buffer.from(await file.arrayBuffer()); // Convert file to Buffer
-      return uploadToCloudinary(buffer, '/category/banners'); // Upload to Cloudinary
-    });
+      const uploadPromises = banners.map(async (file) => {
+          const fileBuffer = Buffer.from(await file.arrayBuffer());
+          const fileName = `bn-${Date.now()}-${file.name}`;
+          const mimeType = file.type;
+              return  uploadToS3(fileBuffer,"category/banner/", fileName, mimeType);
+        });
+    
+        const bannerImages = await Promise.all(uploadPromises);
+        const imageBuffer = Buffer.from(await imageFile.arrayBuffer()); // Convert file to Buffer
+        const image =await uploadToS3(imageBuffer,"category/card/", `card-${Date.now()}-${imageFile.name}`, imageFile.type);
 
-    // Handle single image upload
-    const imageBuffer = Buffer.from(await imageFile.arrayBuffer()); // Convert file to Buffer
-    const uploadedImage = await uploadToCloudinary(imageBuffer, '/category/image'); // Upload to Cloudinary
-
-    // Wait for all banner images to be uploaded
-    const bannersResponse = await Promise.all(bannerUploadPromises);
-    const bannerImages = bannersResponse.map((result) => result.secure_url);
-
-    // Create a new category
     const newCategory = new Category({
       name,
       slug:slugify(name),
       bannerImages,
-      image: uploadedImage.secure_url,
+      image,
       parentCategory,
     });
 
@@ -50,8 +50,6 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Category Added Successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error adding category:', error);
-    console.error("Error adding category:", error.message);
-    console.error(error.stack);
     return NextResponse.json({ message: 'Server error',error }, { status: 500 });
   }
 }

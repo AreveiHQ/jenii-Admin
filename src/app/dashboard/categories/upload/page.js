@@ -21,7 +21,7 @@ export default function UploadCategory() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [bannerPreviews, setBannerPreviews] = useState([]);
-
+  const [ImageFile, setImageFile] = useState([]);
   const {
     register,
     handleSubmit,
@@ -32,15 +32,15 @@ export default function UploadCategory() {
   });
 
   const onSubmit = async (data) => {
+    console.log(data)
     setIsSubmitting(true);
-
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("parentCategory", data.parentCategory);
     formData.append("image", data.image[0]);
 
     // Append all selected banner images to the form data
-    Array.from(data.bannerImages).forEach((file) => {
+    Array.from(data.images).forEach((file) => {
       formData.append("bannerImages", file);
     });
 
@@ -66,15 +66,17 @@ export default function UploadCategory() {
     }
   };
 
-  const handleBannerChange = (event) => {
-    const files = Array.from(event.target.files);
-    const previews = files.map((file) => URL.createObjectURL(file));
-
-    // Update the banner previews while keeping the old ones
-    setBannerPreviews((prevPreviews) => [...prevPreviews, ...previews]);
-
-    // Update the form value to store the selected files
-    setValue("bannerImages", event.target.files);
+  const handleBannerChange = (e) => {
+   
+    const files = Array.from(e.target.files);
+    
+    if (files.length > 0) {
+      const previewsURL = files.map((file) => URL.createObjectURL(file));
+      const updatedFiles = [...ImageFile,...files];
+      setImageFile(updatedFiles);
+      setBannerPreviews((prevPreviews) => [...prevPreviews, ...previewsURL]);
+      setValue("'images'",updatedFiles)
+    }
   };
 
   return (
