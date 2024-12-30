@@ -3,6 +3,7 @@ import Product, { OfflineProduct } from '@/models/productModel';
 import { uploadToCloudinary } from '@/utils/cloudinary';
 import Category from '@/models/category';
 import { connectToDB } from '@/db';
+import { uploadToS3 } from '@/utils/awsS3Bucket';
 
 function calculatedDiscount(price, discountedPrice) {
   const discount = ((price - discountedPrice) / price) * 100;
@@ -34,7 +35,6 @@ export async function POST(request) {
     const category = formData.get('category');
     const subCategory = formData.get('subCategory');
     const collection = formData.getAll('collections');
-    console.log(collection)
     const metal = formData.get('metal');
     const stock = formData.get('stock');
     const mode = formData.get('mode');
@@ -53,14 +53,15 @@ export async function POST(request) {
       return NextResponse.json({ message: 'Invalid price or discounted price values' }, { status: 403 });
     }
 
-    // Upload all image files to Cloudinary
     const uploadPromises = imageFiles.map(async (file) => {
-      const buffer = Buffer.from(await file.arrayBuffer()); // Convert file to Buffer
-      return uploadToCloudinary(buffer, '/product'); // Use the function to upload the Buffer
+      const fileBuffer = Buffer.from(await file.arrayBuffer());
+      const fileName = `${Date.now()}-${file.name}`;
+      const mimeType = file.type;
+
+      return uploadToS3(fileBuffer,"products/", fileName, mimeType);
     });
 
-    const results = await Promise.all(uploadPromises);
-    const images = results.map((result) => result.secure_url);
+    const images = await Promise.all(uploadPromises);
 
     // Now create and save the product in the database
     const discountPercent = calculatedDiscount(price, discountPrice);
